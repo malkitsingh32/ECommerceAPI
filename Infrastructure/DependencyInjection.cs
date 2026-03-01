@@ -18,12 +18,12 @@ namespace Infrastructure
             if (useDistributedCache)
             {
                 // Use distributed cache (Redis) for multi-server deployments
-                services.AddTransient<ITokenCache, DistributedTokenCache>();
+                services.AddScoped<ITokenCache, DistributedTokenCache>();
             }
             else
             {
                 // Use in-memory cache for single-server deployments (default)
-                services.AddTransient<ITokenCache, InMemoryTokenCache>();
+                services.AddSingleton<ITokenCache, InMemoryTokenCache>();
             }
             #endregion
 

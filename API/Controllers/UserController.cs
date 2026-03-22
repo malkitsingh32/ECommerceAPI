@@ -4,7 +4,6 @@ using DTO.Request;
 using Application.Handler.User.Command.AddUser;
 using Mapster;
 using Application.Handler.User.Queries.GetUser;
-using DTO.Response;
 using Application.Handler.User.Queries.Login;
 
 namespace API.Controllers
@@ -33,10 +32,10 @@ namespace API.Controllers
             return Ok(await Mediator.Send(query));
         }
 
-        [HttpGet]
+        [HttpPost]
         [AllowAnonymous]
         [Route("Login")]
-        public async Task<IActionResult> Login([FromQuery] LoginDto loginDto)
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             var query = loginDto.Adapt<LoginQuery>();
             return Ok(await Mediator.Send(query));  

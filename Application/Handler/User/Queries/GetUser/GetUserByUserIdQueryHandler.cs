@@ -1,7 +1,6 @@
 ﻿using Application.Abstraction.Services;
 using Application.Handler.User.Dtos;
 using MediatR;
-using Mapster;
 using Common.Common;
 
 namespace Application.Handler.User.Queries.GetUser

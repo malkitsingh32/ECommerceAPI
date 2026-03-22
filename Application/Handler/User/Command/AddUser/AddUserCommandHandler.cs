@@ -1,6 +1,6 @@
 ﻿using Application.Abstraction.Services;
+using Application.Handler.User.Dtos;
 using Common.Common;
-using Domain.Entities;
 using Mapster;
 using MediatR;
 
@@ -17,7 +17,7 @@ namespace Application.Handler.User.Command.AddUser
 
         public async Task<CommonResultResponseDto<int>> Handle(AddUserCommand addUserCommand, CancellationToken cancellationToken)
         {
-           return await _userService.AddUser(addUserCommand.Adapt<Users>(), addUserCommand.Password); 
+           return await _userService.AddUser(addUserCommand.Adapt<UserDto>(), addUserCommand.Password); 
         }
     }
 }

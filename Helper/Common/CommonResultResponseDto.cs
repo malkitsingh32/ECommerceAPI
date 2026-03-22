@@ -1,4 +1,5 @@
-﻿namespace Common.Common
+﻿
+namespace Common.Common
 {
     public class CommonResultResponseDto<T>
     {

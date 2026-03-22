@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Abstraction.Services
 {
     public interface IPasswordHasher

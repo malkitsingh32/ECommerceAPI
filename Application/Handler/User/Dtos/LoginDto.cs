@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.Handler.User.Dtos
+﻿namespace Application.Handler.User.Dtos
 {
     public class LoginDto
     {

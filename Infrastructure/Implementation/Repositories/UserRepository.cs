@@ -25,7 +25,7 @@ namespace Infrastructure.Implementation.Repositories
              _parameterManager.Get("@PasswordSalt", passwordSalt, ParameterDirection.Input, DbType.Binary),
              _parameterManager.Get("@Phone", user.Phone),
              _parameterManager.Get("@Email", user.Email),
-             _parameterManager.Get("@Company", user.Company));
+             _parameterManager.Get("@Role", user.Role));
         }
         public async Task<Users> GetUserByUserId(int userId)
         {
@@ -38,6 +38,13 @@ namespace Infrastructure.Implementation.Repositories
         {
             return await _dbContext.ExecuteStoredProcedure<Users>("usp_GetUserByEmail",
               _parameterManager.Get("@Email", Email)
+              );
+        }
+
+        public async Task<bool> IsEmailExist(string email)
+        {
+            return await _dbContext.ExecuteStoredProcedure<bool>("usp_IsEmailExist",
+              _parameterManager.Get("@Email", email)
               );
         }
     }

@@ -8,7 +8,6 @@ using Helper.Settings;
 using Application.Handler.User.Dtos;
 using Domain.Entities;
 using Infrastructure.Implementation.Services;
-using Common.Common;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace Infrastructure.Benchmarks
@@ -128,6 +127,11 @@ namespace Infrastructure.Benchmarks
 
             public Task<bool> DeleteUser(int userId) => throw new NotImplementedException();
             public Task<bool> UpdateUser(Users users) => throw new NotImplementedException();
+
+            public Task<bool> IsEmailExist(string email)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         // Fake distributed cache for benchmarking without actual Redis

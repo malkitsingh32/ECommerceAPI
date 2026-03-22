@@ -9,7 +9,6 @@ using Microsoft.OpenApi.Models;
 using Middlewares;
 using Persistence;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Configuration;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);

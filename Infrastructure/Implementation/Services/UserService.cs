@@ -35,27 +35,32 @@ namespace Infrastructure.Implementation.Services
             _signingKey = new SymmetricSecurityKey(keyBytes);
             _signingCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
         }
-        public async Task<CommonResultResponseDto<int>> AddUser(Users users, string password)
+        public async Task<CommonResultResponseDto<int>> AddUser(UserDto users, string password)
         {
-            if (string.IsNullOrWhiteSpace(users.Email))
+            var isEmailExist = await _userRepository.IsEmailExist(users.Email);
+            if (isEmailExist)
             {
-                throw new Exception("Email is required");
+                return CommonResultResponseDto<int>.Failure(new string[] { ActionStatusHelper.IsExistEmail }, 0, true);
             }
             _passwordHasher.CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
-            var userId = await _userRepository.InsertUser(users, passwordHash, passwordSalt);
+            var userId = await _userRepository.InsertUser(users.Adapt<Users>(), passwordHash, passwordSalt);
             return CommonResultResponseDto<int>.Success(new string[] { ActionStatusHelper.Created}, userId);
         }
 
         public async Task<CommonResultResponseDto<UserDto>> GetUserByUserId(int userId)
         {
             var user = await _userRepository.GetUserByUserId(userId);
-            return CommonResultResponseDto<UserDto>.Success(new string[] {ActionStatusHelper.Success }, user.Adapt<UserDto>());
+            return CommonResultResponseDto<UserDto>.Success(new string[] { ActionStatusHelper.Success }, user.Adapt<UserDto>());
         }
 
         public async Task<CommonResultResponseDto<UserDto>> Login(LoginDto loginDto)
         {
-          Users user = await _userRepository.GetUserByEmail(loginDto.Email); 
-          if (!_passwordHasher.VerifyPasswordHash(loginDto.Password, user.PasswordHash, user.PasswordSalt))
+          Users user = await _userRepository.GetUserByEmail(loginDto.Email);
+            if(user == null)
+            {
+                return CommonResultResponseDto<UserDto>.Failure(new string[] { ActionStatusHelper.Error }, null, false);
+            }
+            if (!_passwordHasher.VerifyPasswordHash(loginDto.Password, user.PasswordHash, user.PasswordSalt))
             {
                 CommonResultResponseDto<UserDto>.Failure(new string[] { ActionStatusHelper.WrongPassword }, null, false);
             }

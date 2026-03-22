@@ -13,7 +13,11 @@ namespace Infrastructure
             #region Service
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IPasswordHasher, PasswordHasher>();
-            
+            services.AddTransient<IRequestService, RequestService>();
+            services.AddTransient<IProductService, ProductService>();
+            services.AddTransient<ICategoryService, CategoriesService>();
+
+
             // Configure token caching strategy
             if (useDistributedCache)
             {
@@ -29,6 +33,8 @@ namespace Infrastructure
 
             #region Repository
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<ICategoriesRepositories, CategoriesRepository>();
             #endregion
         }
 

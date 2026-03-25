@@ -5,8 +5,7 @@ using MediatR;
 
 namespace Application.Handler.Categories.Queries.GetCategories
 {
-    public class GetCategoriesQuery: ServerRowRequest, IRequest<CommonResultResponseDto<CategoryDto>>
+    public class GetCategoriesQuery: IRequest<CommonResultResponseDto<List<CategoryListDto>>>
     {
-        public string SearchText { get; set; }
     }
 }

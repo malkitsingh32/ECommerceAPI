@@ -23,10 +23,11 @@ namespace Infrastructure.Implementation.Repositories
                _parameterManager.Get("@ProductId", products.ProductId),
                _parameterManager.Get("@ProductName", products.ProductName),
                _parameterManager.Get("@Description", products.Description),
-               _parameterManager.Get("@Description", products.SKU),
-               _parameterManager.Get("@Description", products.CategoryId),
-               _parameterManager.Get("@Price", products?.SellingPrice),
-               _parameterManager.Get("@StockQuantity", products.StockQty));
+               _parameterManager.Get("@Sku", products.SKU),
+               _parameterManager.Get("@CategoryId", products.CategoryId),
+               _parameterManager.Get("@SellingPrice", products?.SellingPrice),
+               _parameterManager.Get("@StockQuantity", products.StockQty),
+               _parameterManager.Get("@UserId", products.CreatedBy));
                 
         }
 

@@ -12,5 +12,6 @@ namespace Application.Handler.Product.Command.CreateUpdtaeProduct
         public long CategoryId { get; set; }
         public decimal SellingPrice { get; set; }
         public int StockQty { get; set; }
+        public int CreatedBy { get; set; }
     }
 }

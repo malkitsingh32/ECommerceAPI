@@ -25,32 +25,10 @@ namespace Infrastructure.Implementation.Repositories
                     _parameterManager.Get("Description", categories.Description));
         }
 
-        public async Task<Tuple<int, List<Categories>>> GetCategories(int pageNumber, int pageSize, string whereClause, string sortQuery, string searchText = null)
+        public async Task<IList<Categories>> GetCategories()
         {
-            int totalResult = 0;
-            List<Categories> categories = new();
-
-            using (var dbConnection = _dbContext.GetDbConnection())
-            {
-                using var result = await dbConnection.QueryMultipleAsync(
-                    "usp_GetCategories",
-                    _dbContext.GetDapperDynamicParameters(
-                        _parameterManager.Get("PageNumber", pageNumber),
-                        _parameterManager.Get("PageSize", pageSize),
-                        _parameterManager.Get("WhereClause", whereClause),
-                        _parameterManager.Get("SortQuery", sortQuery),
-                        _parameterManager.Get("SearchText", searchText)
-                    ),
-                    commandType: CommandType.StoredProcedure,
-                    commandTimeout: 0);
-
-                totalResult = result.Read<int>().FirstOrDefault();
-
-                // Line 49 stays the same:
-                categories = result.Read<Categories>().ToList();
-            }
-
-            return Tuple.Create(totalResult, categories);
+            return await _dbContext.ExecuteStoredProcedureList<Categories>(
+               "usp_GetCategories");
         }
 
         public async Task<Categories> GetCategoryById(int categoryId)

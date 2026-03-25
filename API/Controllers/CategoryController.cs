@@ -11,11 +11,11 @@ namespace API.Controllers
     [ApiController]
     public class CategoryController : BaseController
     {
-        [HttpPost]
+        [HttpGet]
         [Route("GetCategories")]
-        public async Task<IActionResult> GetCategories([FromBody] GetCategoriesRequestDto getCategoriesRequestDto)
+        public async Task<IActionResult> GetCategories()
         {
-            var products = await Mediator.Send(getCategoriesRequestDto.Adapt<GetCategoriesQuery>());
+            var products = await Mediator.Send( new GetCategoriesQuery());
             return Ok(products);
         }
 

@@ -1,4 +1,5 @@
-﻿using Application.Handler.Product.Queries.GetProductById;
+﻿using Application.Handler.Product.Command.CreateUpdtaeProduct;
+using Application.Handler.Product.Queries.GetProductById;
 using Application.Handler.Product.Queries.GetProducts;
 using DTO.Request;
 using Mapster;
@@ -19,15 +20,15 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        [Route("CreateUpdateProducts")]
-        public async Task<IActionResult> CreateUpdateProducts([FromBody] GetProductsDto getProductsDto)
+        [Route("CreateUpdateProduct")]
+        public async Task<IActionResult> CreateUpdateProducts([FromBody] CreateUpdateProductRequestDto createUpdateProductRequestDto)
         {
-            var products = await Mediator.Send(getProductsDto.Adapt<GetProductsQuery>());
+            var products = await Mediator.Send(createUpdateProductRequestDto.Adapt<CreateUpdateProductCommand>());
             return Ok(products);
         }
 
         [HttpGet]
-        [Route("GetProducts")]
+        [Route("GetProductById")]
         public async Task<IActionResult> GetProductById([FromQuery] int productId)
         {
             var products = await Mediator.Send(new GetProductByIdQuery() { ProductId = productId });

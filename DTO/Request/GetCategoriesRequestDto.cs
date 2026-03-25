@@ -1,7 +1,6 @@
 ﻿namespace DTO.Request
 {
-    public class GetCategoriesRequestDto : ServerRowRequest
+    public class GetCategoriesRequestDto 
     {
-        public string? SearchText { get; set; }
     }
 }

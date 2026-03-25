@@ -28,21 +28,16 @@ namespace Infrastructure.Implementation.Services
             }
         }
 
-        public async Task<CommonResultResponseDto<CategoryDto>> GetCategories(int pageNumber, int pageSize, string whereClause, string sortQuery, string SearchText = null)
+        public async Task<CommonResultResponseDto<List<CategoryListDto>>> GetCategories()
         {
-            var (result, catergory) = await _categoriesRepositories.GetCategories(pageNumber, pageSize, whereClause, sortQuery, SearchText);
-            if (result > 0)
+            var categories = await _categoriesRepositories.GetCategories();
+            if (categories != null)
             {
-                var categoryDtos = new CategoryDto
-                {
-                    TotalResults = result,
-                    CategoryListDto = catergory.Adapt<List<CategoryListDto>>()
-                };
-                return CommonResultResponseDto<CategoryDto>.Success(new[] { "Categories retrieved successfully." }, categoryDtos);
+                return CommonResultResponseDto<List<CategoryListDto>>.Success(new[] { "Categories retrieved successfully." }, categories.Adapt<List<CategoryListDto>>());
             }
             else
             {
-                return CommonResultResponseDto<CategoryDto>.Failure(new[] { "Failed to retrieve categories." }, null);
+                return CommonResultResponseDto<List<CategoryListDto>>.Failure(new[] { "Failed to retrieve categories." }, null);
             }
         }
 

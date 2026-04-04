@@ -7,7 +7,7 @@ COPY ["ECommerce.sln", "./"]
 
 # Copy all project files - ALL at the same level (sibling folders)
 COPY ["API/API.csproj", "API/"]
-COPY ["Application/Application.csproj", "Application"]
+COPY ["Application/Application.csproj", "Application/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["Middlewares/Middlewares.csproj", "Middlewares/"]
 COPY ["Persistence/Persistence.csproj", "Persistence/"]

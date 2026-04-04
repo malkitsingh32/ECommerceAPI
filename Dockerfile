@@ -5,25 +5,26 @@ WORKDIR /src
 # Copy solution file
 COPY ["ECommerce.sln", "./"]
 
-# Copy project files with CORRECT paths based on your folder structure
-COPY ["Presentation/API/API.csproj", "Presentation/API/"]
-COPY ["Presentation/DTO/DTO.csproj", "Presentation/DTO/"]
-COPY ["Presentation/Middlewares/Middlewares.csproj", "Presentation/Middlewares/"]
-COPY ["Common/Helper/Helper.csproj", "Common/Helper/"]
-COPY ["Common/Settings/Settings.csproj", "Common/Settings/"]
-COPY ["Core/Core.csproj", "Core/"]
-COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
-COPY ["Persistence/Persistence.csproj", "Persistence/"]
+# Copy all project files - ALL at the same level (sibling folders)
+COPY ["API/API.csproj", "API/"]
 COPY ["Application/Application.csproj", "Application/"]
+COPY ["DTO/DTO.csproj", "DTO/"]
+COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
+COPY ["Middlewares/Middlewares.csproj", "Middlewares/"]
+COPY ["Persistence/Persistence.csproj", "Persistence/"]
+COPY ["Helper/Helper.csproj", "Helper/"]
+COPY ["Settings/Settings.csproj", "Settings/"]
+COPY ["Core/Core.csproj", "Core/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
 
-# Restore dependencies
-RUN dotnet restore "Presentation/API/API.csproj"
+# Restore
+RUN dotnet restore "API/API.csproj"
 
 # Copy everything
 COPY . .
 
 # Build
-WORKDIR "/src/Presentation/API"
+WORKDIR "/src/API"
 RUN dotnet build "API.csproj" -c Release -o /app/build
 
 # Publish

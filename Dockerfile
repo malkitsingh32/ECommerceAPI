@@ -7,12 +7,12 @@ COPY ["ECommerce.sln", "./"]
 
 # Copy all project files - ALL at the same level (sibling folders)
 COPY ["API/API.csproj", "API/"]
-COPY ["Core/Application/Application.csproj", "Core/Application"]
+COPY ["Application/Application.csproj", "Application"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["Middlewares/Middlewares.csproj", "Middlewares/"]
 COPY ["Persistence/Persistence.csproj", "Persistence/"]
 COPY ["Helper/Helper.csproj", "Helper/"]
-COPY ["Core/Domain/Domain.csproj", "Core/Domain/"]
+COPY ["Domain/Domain.csproj", "Domain/"]
 
 # Restore
 RUN dotnet restore "API/API.csproj"

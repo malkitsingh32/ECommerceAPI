@@ -15,7 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 ApiMapsterMappings.Configure();
 ApplicationMapsterMappings.Configure();
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 
+builder.WebHost.UseUrls($"http://*:{port}");
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddMediatR(AppDomain.CurrentDomain.Load("Application"));

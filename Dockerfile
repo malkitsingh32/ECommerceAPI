@@ -5,25 +5,25 @@ WORKDIR /src
 # Copy solution file
 COPY ["ECommerce.sln", "./"]
 
-# Copy all project files
-COPY ["API/API.csproj", "API/"]
-COPY ["Application/Application.csproj", "Application/"]
+# Copy project files with CORRECT paths based on your folder structure
+COPY ["Presentation/API/API.csproj", "Presentation/API/"]
+COPY ["Presentation/DTO/DTO.csproj", "Presentation/DTO/"]
+COPY ["Presentation/Middlewares/Middlewares.csproj", "Presentation/Middlewares/"]
+COPY ["Common/Helper/Helper.csproj", "Common/Helper/"]
+COPY ["Common/Settings/Settings.csproj", "Common/Settings/"]
+COPY ["Core/Core.csproj", "Core/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["Persistence/Persistence.csproj", "Persistence/"]
-COPY ["Domain/Domain.csproj", "Domain/"]
-COPY ["DTO/DTO.csproj", "DTO/"]
-COPY ["Middlewares/Middlewares.csproj", "Middlewares/"]
-COPY ["Core/Core.csproj", "Core/"]
-COPY ["Common/Helper.csproj", "Common/"]
+COPY ["Application/Application.csproj", "Application/"]
 
-# Restore all dependencies
-RUN dotnet restore "API/API.csproj"
+# Restore dependencies
+RUN dotnet restore "Presentation/API/API.csproj"
 
 # Copy everything
 COPY . .
 
 # Build
-WORKDIR "/src/API"
+WORKDIR "/src/Presentation/API"
 RUN dotnet build "API.csproj" -c Release -o /app/build
 
 # Publish
@@ -35,11 +35,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Important environment variables
 ENV ASPNETCORE_URLS=http://+:80
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 EXPOSE 80
 
-# Your main DLL
 ENTRYPOINT ["dotnet", "API.dll"]

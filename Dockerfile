@@ -14,7 +14,7 @@ COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["DTO/DTO.csproj", "DTO/"]
 COPY ["Middlewares/Middlewares.csproj", "Middlewares/"]
 COPY ["Core/Core.csproj", "Core/"]
-COPY ["Common/Common.csproj", "Common/"]
+COPY ["Common/Helper.csproj", "Common/"]
 
 # Restore all dependencies
 RUN dotnet restore "API/API.csproj"

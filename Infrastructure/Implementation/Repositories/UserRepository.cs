@@ -1,51 +1,51 @@
-﻿using Application.Abstraction.DataBase;
-using Application.Abstraction.Repositories;
+﻿using Application.Abstraction.Repositories;
 using Domain.Entities;
-using System.Data;
 
 namespace Infrastructure.Implementation.Repositories
 {
     internal class UserRepository : IUserRepository
     {
-        private readonly IDbContext _dbContext;
-        private readonly IParameterManager _parameterManager;
-        public UserRepository(IDbContext dbContext, IParameterManager parameterManager)
+        private static readonly List<Users> _users = new()
         {
-            _dbContext = dbContext;
-            _parameterManager = parameterManager;
+            new Users
+            {
+                UserId = 1,
+                UserName = "demo.user",
+                FirstName = "Demo",
+                LastName = "User",
+                Email = "demo@local.test",
+                Phone = "9999999999",
+                Role = 1
+            }
+        };
+
+        private static int _nextUserId = 2;
+
+        public Task<int> InsertUser(Users user, byte[] passwordHash, byte[] passwordSalt)
+        {
+            user.UserId = _nextUserId++;
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+            _users.Add(user);
+            return Task.FromResult(user.UserId.Value);
         }
 
-        public async Task<int> InsertUser(Users user, byte[] passwordHash, byte[] passwordSalt)
+        public Task<Users> GetUserByUserId(int userId)
         {
-            return await _dbContext.ExecuteStoredProcedure<int>("usp_InsertUser",
-             _parameterManager.Get("@UserName", user.UserName),
-             _parameterManager.Get("@FirstName", user.FirstName),
-             _parameterManager.Get("@LastName", user.LastName),
-             _parameterManager.Get("@PasswordHash", passwordHash, ParameterDirection.Input, DbType.Binary),
-             _parameterManager.Get("@PasswordSalt", passwordSalt, ParameterDirection.Input, DbType.Binary),
-             _parameterManager.Get("@Phone", user.Phone),
-             _parameterManager.Get("@Email", user.Email),
-             _parameterManager.Get("@Role", user.Role));
-        }
-        public async Task<Users> GetUserByUserId(int userId)
-        {
-            return await _dbContext.ExecuteStoredProcedure<Users>("usp_GetUserById", 
-              _parameterManager.Get("@Id", userId)
-              );
+            var user = _users.FirstOrDefault(u => u.UserId == userId);
+            return Task.FromResult(user);
         }
 
-        public async Task<Users> GetUserByEmail(string Email)
+        public Task<Users> GetUserByEmail(string Email)
         {
-            return await _dbContext.ExecuteStoredProcedure<Users>("usp_GetUserByEmail",
-              _parameterManager.Get("@Email", Email)
-              );
+            var user = _users.FirstOrDefault(u => string.Equals(u.Email, Email, StringComparison.OrdinalIgnoreCase));
+            return Task.FromResult(user);
         }
 
-        public async Task<bool> IsEmailExist(string email)
+        public Task<bool> IsEmailExist(string email)
         {
-            return await _dbContext.ExecuteStoredProcedure<bool>("usp_IsEmailExist",
-              _parameterManager.Get("@Email", email)
-              );
+            var exists = _users.Any(u => string.Equals(u.Email, email, StringComparison.OrdinalIgnoreCase));
+            return Task.FromResult(exists);
         }
     }
 }

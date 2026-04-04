@@ -1,41 +1,55 @@
-﻿using Application.Abstraction.DataBase;
-using Application.Abstraction.Repositories;
-using Dapper;
+﻿using Application.Abstraction.Repositories;
 using Domain.Entities;
-using System.Data;
 
 namespace Infrastructure.Implementation.Repositories
 {
     public class CategoriesRepository : ICategoriesRepositories
     {
-        private readonly IDbContext _dbContext;
-        private readonly IParameterManager _parameterManager;
+        private static readonly List<Categories> _categories = new()
+        {
+            new Categories { CategoryId = 1, CategoryName = "Electronics", Description = "Electronic items", IsActive = true, IsDeleted = false, CreatedDate = DateTime.UtcNow },
+            new Categories { CategoryId = 2, CategoryName = "Groceries", Description = "Daily grocery items", IsActive = true, IsDeleted = false, CreatedDate = DateTime.UtcNow },
+            new Categories { CategoryId = 3, CategoryName = "Fashion", Description = "Clothing and accessories", IsActive = true, IsDeleted = false, CreatedDate = DateTime.UtcNow }
+        };
 
-        public CategoriesRepository(IDbContext dbContext, IParameterManager parameterManager)
+        private static long _nextCategoryId = 4;
+
+        public Task<int> CreateUpdateCategories(Categories categories)
         {
-            _dbContext = dbContext;
-            _parameterManager = parameterManager;
-        }
-        public async Task<int> CreateUpdateCategories(Categories categories)
-        {
-            return await _dbContext.ExecuteStoredProcedure<int>(
-                "usp_CreateUpdateCategories",
-                    _parameterManager.Get("CategoryId", categories.CategoryId),
-                    _parameterManager.Get("CategoryName", categories.CategoryName),
-                    _parameterManager.Get("Description", categories.Description));
+            if (categories.CategoryId <= 0)
+            {
+                categories.CategoryId = _nextCategoryId++;
+                categories.CreatedDate = DateTime.UtcNow;
+                categories.IsActive = true;
+                categories.IsDeleted = false;
+                _categories.Add(categories);
+                return Task.FromResult((int)categories.CategoryId);
+            }
+
+            var existing = _categories.FirstOrDefault(c => c.CategoryId == categories.CategoryId);
+            if (existing == null)
+            {
+                return Task.FromResult(0);
+            }
+
+            existing.CategoryName = categories.CategoryName;
+            existing.Description = categories.Description;
+            existing.UpdatedBy = categories.UpdatedBy;
+            existing.UpdatedDate = DateTime.UtcNow;
+
+            return Task.FromResult((int)existing.CategoryId);
         }
 
-        public async Task<IList<Categories>> GetCategories()
+        public Task<IList<Categories>> GetCategories()
         {
-            return await _dbContext.ExecuteStoredProcedureList<Categories>(
-               "usp_GetCategories");
+            IList<Categories> result = _categories.Where(c => c.IsDeleted != true).ToList();
+            return Task.FromResult(result);
         }
 
-        public async Task<Categories> GetCategoryById(int categoryId)
+        public Task<Categories> GetCategoryById(int categoryId)
         {
-            return await _dbContext.ExecuteStoredProcedure<Categories>(
-                "usp_GetCategoryById",
-                _parameterManager.Get("CategoryId", categoryId));
+            var category = _categories.FirstOrDefault(c => c.CategoryId == categoryId && c.IsDeleted != true);
+            return Task.FromResult(category);
         }
     }
 }

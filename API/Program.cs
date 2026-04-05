@@ -25,25 +25,13 @@ builder.Services.AddInfrastructure();
 builder.Services.AddPersistence();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy(name: MyAllowSpecificOrigins,
-//              builder =>
-//              {
-//                  builder.WithOrigins("http://localhost:4200", "http://beta.calcuzon.com", "https://beta.calcuzon.com", "http://calcuzon.com", "https://calcuzon.com").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-//              });
-//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy => policy
-            .SetIsOriginAllowed(origin =>
-                origin.Contains("localhost:4200") ||      // ✅ local
-                origin.Contains("netlify.app") ||         // ✅ netlify
-                origin.Contains("onrender.com")           // ✅ swagger / same host
-            )
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+              builder =>
+              {
+                  builder.WithOrigins("http://localhost:4200", "https://shopflux.netlify.app", "http://shopflux.netlify.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+              });
 });
 var appSettingsSection = builder.Configuration.GetSection("AppSettings");
 builder.Services.Configure<AppSettings>(appSettingsSection);

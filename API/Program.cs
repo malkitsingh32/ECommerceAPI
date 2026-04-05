@@ -38,8 +38,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend",
         policy => policy
             .SetIsOriginAllowed(origin =>
-                origin.StartsWith("http://localhost:4200") ||   // ✅ local
-                origin.Contains("netlify.app")                  // ✅ Netlify (all previews)
+                origin.Contains("localhost:4200") ||      // ✅ local
+                origin.Contains("netlify.app") ||         // ✅ netlify
+                origin.Contains("onrender.com")           // ✅ swagger / same host
             )
             .AllowAnyMethod()
             .AllowAnyHeader());

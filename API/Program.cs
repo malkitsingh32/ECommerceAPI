@@ -1,4 +1,4 @@
-using API.Adapter;
+﻿using API.Adapter;
 using Application.Adapter;
 using Helper.Settings;
 using Infrastructure;
@@ -15,9 +15,9 @@ var builder = WebApplication.CreateBuilder(args);
 string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 ApiMapsterMappings.Configure();
 ApplicationMapsterMappings.Configure();
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+//var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
 
-builder.WebHost.UseUrls($"http://*:{port}");
+//builder.WebHost.UseUrls($"http://*:{port}");
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddMediatR(AppDomain.CurrentDomain.Load("Application"));
@@ -25,13 +25,24 @@ builder.Services.AddInfrastructure();
 builder.Services.AddPersistence();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy(name: MyAllowSpecificOrigins,
+//              builder =>
+//              {
+//                  builder.WithOrigins("http://localhost:4200", "http://beta.calcuzon.com", "https://beta.calcuzon.com", "http://calcuzon.com", "https://calcuzon.com").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+//              });
+//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-              builder =>
-              {
-                  builder.WithOrigins("http://localhost:4200", "http://beta.calcuzon.com", "https://beta.calcuzon.com", "http://calcuzon.com", "https://calcuzon.com").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
-              });
+    options.AddPolicy("AllowFrontend",
+        policy => policy
+            .SetIsOriginAllowed(origin =>
+                origin.StartsWith("http://localhost:4200") ||   // ✅ local
+                origin.Contains("netlify.app")                  // ✅ Netlify (all previews)
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 });
 var appSettingsSection = builder.Configuration.GetSection("AppSettings");
 builder.Services.Configure<AppSettings>(appSettingsSection);
@@ -97,11 +108,11 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
     app.UseSwaggerUI();
-//}
+}
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();   // MUST be before Authorization

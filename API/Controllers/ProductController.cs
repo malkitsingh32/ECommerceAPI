@@ -1,4 +1,5 @@
 ﻿using Application.Handler.Product.Command.CreateUpdtaeProduct;
+using Application.Handler.Product.Command.DeleteProduct;
 using Application.Handler.Product.Queries.GetProductById;
 using Application.Handler.Product.Queries.GetProducts;
 using DTO.Request;
@@ -24,6 +25,13 @@ namespace API.Controllers
         public async Task<IActionResult> CreateUpdateProducts([FromBody] CreateUpdateProductRequestDto createUpdateProductRequestDto)
         {
             var products = await Mediator.Send(createUpdateProductRequestDto.Adapt<CreateUpdateProductCommand>());
+            return Ok(products);
+        }
+        [HttpDelete]
+        [Route("DeleteProduct")]
+        public async Task<IActionResult> DeleteProduct([FromQuery] int ProductId)
+        {
+            var products = await Mediator.Send( new DeleteProductCommand() { ProductId = ProductId});
             return Ok(products);
         }
 

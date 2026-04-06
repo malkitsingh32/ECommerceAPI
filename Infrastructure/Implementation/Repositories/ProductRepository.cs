@@ -31,6 +31,12 @@ namespace Infrastructure.Implementation.Repositories
                 
         }
 
+        public async Task<int> DeleteProduct(int productId)
+        {
+            return await _dbContext.ExecuteStoredProcedure<int>("usp_DeleteProduct",
+               _parameterManager.Get("@ProductId", productId));
+        }
+
         public async Task<Products> GetProductById(int productId)
         {
             return await _dbContext.ExecuteStoredProcedure<Products>("usp_GetProductById",

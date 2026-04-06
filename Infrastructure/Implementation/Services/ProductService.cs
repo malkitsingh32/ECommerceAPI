@@ -3,6 +3,7 @@ using Application.Abstraction.Services;
 using Application.Handler.Product.Dtos;
 using Common.Common;
 using Domain.Entities;
+using Helper;
 using Mapster;
 
 namespace Infrastructure.Implementation.Services
@@ -27,6 +28,19 @@ namespace Infrastructure.Implementation.Services
             else
             {
                 return CommonResultResponseDto<int>.Failure(new string[] { "Failed to create/update product." }, 0);
+            }
+        }
+
+        public async Task<CommonResultResponseDto<string>> DeleteProduct(int productId)
+        {
+            var id = await _productRepository.DeleteProduct(productId);
+            if (id > 0)
+            {
+                return CommonResultResponseDto<string>.Success(new string[] { ActionStatusHelper.Deleted }, "",id);
+            }
+            else
+            {
+                return CommonResultResponseDto<string>.Failure(new string[] { "Failed to delete product." }, "");
             }
         }
 

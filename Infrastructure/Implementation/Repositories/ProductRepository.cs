@@ -1,79 +1,66 @@
-﻿using Application.Abstraction.Repositories;
+﻿using Application.Abstraction.DataBase;
+using Application.Abstraction.Repositories;
+using Dapper;
 using Domain.Entities;
+using System.Data;
 
 namespace Infrastructure.Implementation.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        private static readonly List<Products> _products = new()
+        private readonly IDbContext _dbContext;
+        private readonly IParameterManager _parameterManager;
+
+        public ProductRepository(IDbContext dbContext, IParameterManager parameterManager)
         {
-            new Products { ProductId = 1, ProductName = "Sample Product 1", SKU = "SKU-001", Description = "Dummy product 1", CategoryId = 1, SellingPrice = 99.99m, StockQty = 10, IsActive = true, IsDeleted = false, CreatedDate = DateTime.UtcNow },
-            new Products { ProductId = 2, ProductName = "Sample Product 2", SKU = "SKU-002", Description = "Dummy product 2", CategoryId = 2, SellingPrice = 149.50m, StockQty = 20, IsActive = true, IsDeleted = false, CreatedDate = DateTime.UtcNow },
-            new Products { ProductId = 3, ProductName = "Sample Product 3", SKU = "SKU-003", Description = "Dummy product 3", CategoryId = 1, SellingPrice = 249.00m, StockQty = 5, IsActive = true, IsDeleted = false, CreatedDate = DateTime.UtcNow }
-        };
-
-        private static long _nextProductId = 4;
-
-        public Task<int> CreateUpdateProduct(Products products)
-        {
-            if (!products.ProductId.HasValue || products.ProductId.Value <= 0)
-            {
-                products.ProductId = _nextProductId++;
-                products.CreatedDate = DateTime.UtcNow;
-                products.IsActive = true;
-                products.IsDeleted = false;
-                _products.Add(products);
-                return Task.FromResult((int)products.ProductId.Value);
-            }
-
-            var existing = _products.FirstOrDefault(p => p.ProductId == products.ProductId);
-            if (existing == null)
-            {
-                return Task.FromResult(0);
-            }
-
-            existing.ProductName = products.ProductName;
-            existing.Description = products.Description;
-            existing.SKU = products.SKU;
-            existing.CategoryId = products.CategoryId;
-            existing.SellingPrice = products.SellingPrice;
-            existing.StockQty = products.StockQty;
-            existing.UpdatedBy = products.UpdatedBy;
-            existing.UpdatedDate = DateTime.UtcNow;
-
-            return Task.FromResult((int)existing.ProductId!.Value);
+            _dbContext = dbContext;
+            _parameterManager = parameterManager;
         }
 
-        public Task<Products> GetProductById(int productId)
+        public async Task<int> CreateUpdateProduct(Products products)
         {
-            var product = _products.FirstOrDefault(p => p.ProductId == productId && p.IsDeleted != true);
-            return Task.FromResult(product);
+            return await _dbContext.ExecuteStoredProcedure<int>("usp_CreateUpdateProduct",
+               _parameterManager.Get("@ProductId", products.ProductId),
+               _parameterManager.Get("@ProductName", products.ProductName),
+               _parameterManager.Get("@Description", products.Description),
+               _parameterManager.Get("@Sku", products.SKU),
+               _parameterManager.Get("@CategoryId", products.CategoryId),
+               _parameterManager.Get("@SellingPrice", products?.SellingPrice),
+               _parameterManager.Get("@StockQuantity", products.StockQty),
+               _parameterManager.Get("@UserId", products.CreatedBy));
+                
         }
 
-        public Task<Tuple<int, List<Products>>> GetProducts(int pageNumber, int pageSize, string whereClause, string sortQuery, string searchText = null)
+        public async Task<Products> GetProductById(int productId)
         {
-            var query = _products.Where(p => p.IsDeleted != true);
+            return await _dbContext.ExecuteStoredProcedure<Products>("usp_GetProductById",
+                _parameterManager.Get("@ProductId", productId));
+        }
 
-            if (!string.IsNullOrWhiteSpace(searchText))
+        public async Task<Tuple<int, List<Products>>> GetProducts(int pageNumber, int pageSize, string whereClause, string sortQuery, string searchText = null)
+        {
+            int totalResult = 0;
+            List<Products> products = new();
+
+            using (var dbConnection = _dbContext.GetDbConnection())
             {
-                query = query.Where(p =>
-                    (p.ProductName?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (p.SKU?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    (p.Description?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false));
+                using var result = await dbConnection.QueryMultipleAsync(
+                    "usp_GetProducts",
+                    _dbContext.GetDapperDynamicParameters(
+                        _parameterManager.Get("PageNumber", pageNumber),
+                        _parameterManager.Get("PageSize", pageSize),
+                        _parameterManager.Get("WhereClause", whereClause),
+                        _parameterManager.Get("SortQuery", sortQuery),
+                        _parameterManager.Get("SearchText", searchText)
+                    ),
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: 0);
+
+                totalResult = result.Read<int>().FirstOrDefault();
+                products = result.Read<Products>().ToList();
             }
 
-            var total = query.Count();
-
-            var page = pageNumber <= 0 ? 1 : pageNumber;
-            var size = pageSize <= 0 ? 10 : pageSize;
-
-            var items = query
-                .OrderByDescending(p => p.ProductId)
-                .Skip((page - 1) * size)
-                .Take(size)
-                .ToList();
-
-            return Task.FromResult(Tuple.Create(total, items));
+            return Tuple.Create(totalResult, products);
         }
     }
 }
